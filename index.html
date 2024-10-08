@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Blackhole</title>
+  <link rel="icon" href="https://fav.farm/🌀" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+<link rel="stylesheet" href="./style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gravitas+One&display=swap" rel="stylesheet">
+<style>
+	.gravitas-one-regular {
+  font-family: "Gravitas One", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+</style>
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<script id="2d-fragment-shader" type="x-shader/x-fragment">// <![CDATA[
+
+// Look below at line 23 for realism.
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+#define PI 3.14159265359
+
+uniform sampler2D u_image;
+varying vec2 v_texCoord;
+
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_mass;
+uniform float u_time;
+uniform float u_clickedTime;
+
+vec2 rotate(vec2 mt, vec2 st, float angle){
+	float cos = cos((angle + u_clickedTime) * PI); // try replacing * 1.0 with * PI
+	float sin = sin(angle * 0.0); // try removing the * 0.0
+	
+	// Uncomment these two lines for realism
+	//float cos = cos(angle) * (u_time * 0.3);
+	//float sin = sin(angle) * (u_time * 0.3);
+	
+	float nx = (cos * (st.x - mt.x)) + (sin * (st.y - mt.y)) + mt.x;
+	float ny = (cos * (st.y - mt.y)) - (sin * (st.x - mt.x)) + mt.y;
+	return vec2(nx, ny);
+}
+
+void main() {
+     vec2 st = vec2(gl_FragCoord.x, u_resolution.y - gl_FragCoord.y)/u_resolution;
+	vec2 mt = vec2(u_mouse.x, u_resolution.y - u_mouse.y)/u_resolution;
+
+	float dx = st.x - mt.x;
+	float dy = st.y - mt.y;
+
+	float dist = sqrt(dx * dx + dy * dy);
+	float pull = u_mass / (dist * dist);
+	
+     vec3 color = vec3(0.0);
+	
+	vec2 r = rotate(mt,st,pull);
+	vec4 imgcolor = texture2D(u_image, r);
+	color = vec3(
+		(imgcolor.x - (pull * 0.25)),
+		(imgcolor.y - (pull * 0.25)), 
+		(imgcolor.z - (pull * 0.25))
+	);
+	
+
+     gl_FragColor = vec4(color,1.);
+}
+// ]]></script>
+<script id="2d-vertex-shader" type="x-shader/x-vertex">// <![CDATA[
+	attribute vec2 a_position;
+	attribute vec2 a_texCoord;
+	
+	varying vec2 v_texCoord;
+	void main() {
+		gl_Position = vec4(a_position, 0, 1);
+		v_texCoord = a_texCoord;
+	}
+	// ]]></script>
+<canvas id="glscreen"></canvas>
+<div style="position: absolute; z-index: 1000; top: 200px; right: 300px;left: 300px; font-size: large; color: white;">
+	<h1 class="gravitas-one-regular">
+		A black hole is not just the absence of light, a black hole is an object so dense that no light is able to escape from it. Nothing that goes into a black hole ever comes back out of it. Imagine light shining in the middle of a black hole, that is the miracle of the gospel. It was not possible for any light to exist, other than the light that God Himself provides to us. We were hopelessly trapped in perpetual, inescapable darkness, a demonic black hole. Before the foundation of the world, before the fall ever took place, in the midst of the unfolding darkness, God the Father through Christ the Son made a way of provision, escape, and salvation. (2 Peter 1:19) We have also a more sure word of prophecy; whereunto ye do well that ye take heed, as unto a light that shineth in a dark place, until the day dawn, and the day star arise in your hearts:
+
+	</h1>
+</div>
+<!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script><script  src="./script.js"></script>
+
+</body>
+</html>
